@@ -38,10 +38,7 @@ async def health_check():
     return {"status": "ok"}
 
 
-# TODO: Add API route imports here
-# from app.api import songs, content, ads, revenue, dashboard
-# app.include_router(songs.router)
-# app.include_router(content.router)
-# app.include_router(ads.router)
-# app.include_router(revenue.router)
-# app.include_router(dashboard.router)
+from app.api.content import router as content_router
+app.include_router(content_router)
+
+# TODO: add songs, ads, revenue, dashboard routers as they are built
