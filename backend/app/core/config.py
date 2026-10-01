@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     spotify_client_id: str = ""
     spotify_client_secret: str = ""
     spotify_access_token: str = ""
+    spotify_artist_id: str = ""
     
     tunecore_api_key: str = ""
     tunecore_api_url: str = "https://api.tunecore.com"

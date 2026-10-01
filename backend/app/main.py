@@ -4,7 +4,6 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-# Create FastAPI app
 app = FastAPI(
     title="Artist OS",
     description="AI-powered operating system for managing independent music careers",
@@ -12,7 +11,6 @@ app = FastAPI(
     debug=settings.debug,
 )
 
-# Add CORS middleware to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://localhost:3001", "*"],
@@ -24,7 +22,6 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    """Health check and API root."""
     return {
         "message": "Artist OS Backend",
         "version": "0.1.0",
@@ -34,14 +31,13 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
     return {"status": "ok"}
 
 
-# TODO: Add API route imports here
-# from app.api import songs, content, ads, revenue, dashboard
-# app.include_router(songs.router)
-# app.include_router(content.router)
-# app.include_router(ads.router)
-# app.include_router(revenue.router)
-# app.include_router(dashboard.router)
+from app.api.songs import router as songs_router
+from app.api.content import router as content_router
+from app.api.dashboard import router as dashboard_router
+
+app.include_router(songs_router)
+app.include_router(content_router)
+app.include_router(dashboard_router)
