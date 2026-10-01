@@ -23,18 +23,21 @@ async def get_account_insights() -> dict:
     token = settings.instagram_access_token
     account_id = settings.meta_business_account_id
 
-    if token and account_id:
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{_base_url()}/{account_id}/insights",
-                params={
-                    "metric": "impressions,reach,profile_views,follower_count",
-                    "period": "day",
-                    "access_token": token,
-                },
-            )
-            resp.raise_for_status()
-            return _normalize_account(resp.json())
+    try:
+        if token and account_id:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    f"{_base_url()}/{account_id}/insights",
+                    params={
+                        "metric": "impressions,reach,profile_views,follower_count",
+                        "period": "day",
+                        "access_token": token,
+                    },
+                )
+                resp.raise_for_status()
+                return _normalize_account(resp.json())
+    except Exception:
+        pass
     return _placeholder_account()
 
 
@@ -43,33 +46,35 @@ async def get_media_insights() -> list[dict]:
     token = settings.instagram_access_token
     account_id = settings.meta_business_account_id
 
-    if token and account_id:
-        async with httpx.AsyncClient() as client:
-            # Get media list
-            media_resp = await client.get(
-                f"{_base_url()}/{account_id}/media",
-                params={
-                    "fields": "id,caption,media_type,timestamp,permalink,thumbnail_url,media_url",
-                    "access_token": token,
-                    "limit": 20,
-                },
-            )
-            media_resp.raise_for_status()
-            media_items = media_resp.json().get("data", [])
-
-            results = []
-            for item in media_items:
-                ins_resp = await client.get(
-                    f"{_base_url()}/{item['id']}/insights",
+    try:
+        if token and account_id:
+            async with httpx.AsyncClient() as client:
+                media_resp = await client.get(
+                    f"{_base_url()}/{account_id}/media",
                     params={
-                        "metric": "impressions,reach,likes,comments,shares,saved,video_views",
+                        "fields": "id,caption,media_type,timestamp,permalink,thumbnail_url,media_url",
                         "access_token": token,
+                        "limit": 20,
                     },
                 )
-                if ins_resp.status_code == 200:
-                    ins = {m["name"]: m["values"][0]["value"] for m in ins_resp.json().get("data", [])}
-                    results.append({**item, **ins})
-            return [_normalize_media(m) for m in results]
+                media_resp.raise_for_status()
+                media_items = media_resp.json().get("data", [])
+
+                results = []
+                for item in media_items:
+                    ins_resp = await client.get(
+                        f"{_base_url()}/{item['id']}/insights",
+                        params={
+                            "metric": "impressions,reach,likes,comments,shares,saved,video_views",
+                            "access_token": token,
+                        },
+                    )
+                    if ins_resp.status_code == 200:
+                        ins = {m["name"]: m["values"][0]["value"] for m in ins_resp.json().get("data", [])}
+                        results.append({**item, **ins})
+                return [_normalize_media(m) for m in results]
+    except Exception:
+        pass
     return _placeholder_media()
 
 

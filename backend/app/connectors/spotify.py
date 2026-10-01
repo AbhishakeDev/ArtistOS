@@ -31,40 +31,46 @@ async def _get_access_token() -> Optional[str]:
 
 async def get_artist_top_tracks(artist_id: str) -> list[dict]:
     """Fetch top tracks for an artist. Falls back to placeholder data if no credentials."""
-    token = await _get_access_token()
-    if token and artist_id:
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{SPOTIFY_API_URL}/artists/{artist_id}/top-tracks",
-                headers={"Authorization": f"Bearer {token}"},
-                params={"market": "IN"},
-            )
-            resp.raise_for_status()
-            tracks = resp.json().get("tracks", [])
-            return [_normalize_track(t) for t in tracks]
+    try:
+        token = await _get_access_token()
+        if token and artist_id:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    f"{SPOTIFY_API_URL}/artists/{artist_id}/top-tracks",
+                    headers={"Authorization": f"Bearer {token}"},
+                    params={"market": "IN"},
+                )
+                resp.raise_for_status()
+                tracks = resp.json().get("tracks", [])
+                return [_normalize_track(t) for t in tracks]
+    except Exception:
+        pass
     return _placeholder_tracks()
 
 
 async def get_artist_info(artist_id: str) -> dict:
     """Fetch artist profile info. Falls back to placeholder if no credentials."""
-    token = await _get_access_token()
-    if token and artist_id:
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{SPOTIFY_API_URL}/artists/{artist_id}",
-                headers={"Authorization": f"Bearer {token}"},
-            )
-            resp.raise_for_status()
-            a = resp.json()
-            return {
-                "id": a["id"],
-                "name": a["name"],
-                "followers": a["followers"]["total"],
-                "popularity": a["popularity"],
-                "genres": a.get("genres", []),
-                "image_url": a["images"][0]["url"] if a.get("images") else None,
-                "spotify_url": a["external_urls"]["spotify"],
-            }
+    try:
+        token = await _get_access_token()
+        if token and artist_id:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    f"{SPOTIFY_API_URL}/artists/{artist_id}",
+                    headers={"Authorization": f"Bearer {token}"},
+                )
+                resp.raise_for_status()
+                a = resp.json()
+                return {
+                    "id": a["id"],
+                    "name": a["name"],
+                    "followers": a["followers"]["total"],
+                    "popularity": a["popularity"],
+                    "genres": a.get("genres", []),
+                    "image_url": a["images"][0]["url"] if a.get("images") else None,
+                    "spotify_url": a["external_urls"]["spotify"],
+                }
+    except Exception:
+        pass
     return _placeholder_artist()
 
 
