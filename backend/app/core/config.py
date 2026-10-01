@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     secret_key: str = "your_secret_key_here_keep_secure"
     
     # APIs
+    # These come from .env but are frontend/infra only — ignored by backend
+    api_host: str = "0.0.0.0"
+    api_port: int = 8000
+    next_public_api_url: str = "http://localhost:8000"
+
     spotify_client_id: str = ""
     spotify_client_secret: str = ""
     spotify_access_token: str = ""
